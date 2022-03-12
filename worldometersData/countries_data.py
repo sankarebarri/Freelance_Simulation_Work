@@ -30,7 +30,7 @@ for i in range(len(countries)):
     }
     countries_data.append(temporary_data)
 
-#convert to pandas dataframe
+#convert to pandas DataFrame
 df = pd.DataFrame(countries_data)
 
 #convert to different formats
