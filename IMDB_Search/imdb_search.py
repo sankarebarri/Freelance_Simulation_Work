@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 import time
 from selenium.webdriver.support.ui import Select
+import pandas as pd
 
 s = Service(r'C:\Users\sanka\Desktop\data\chromdriver\chromedriver.exe')
 driver = webdriver.Chrome(service=s)
@@ -77,3 +78,48 @@ dropdown_3.select_by_index(2)
 #click on the search button 
 search = driver.find_element(By.XPATH, "(//button[@type='submit'])[2]")
 search.click()
+
+###### BEAUTIFUL SOUP TO SCRAPE THE TITLE, YEAR, DURATION, GENRE, RATING ######
+from bs4 import BeautifulSoup as bs
+import requests
+
+response = requests.get(current_url)
+response.status_code
+
+soup = bs(response.content, 'html.parser')
+
+list_items = soup.find_all('div', {'class':'lister-item'})
+len(list_items)
+
+title = list_items[0].find('h3').find('a').get_text()
+print(title)
+
+year = list_items[0].find('h3').find('span', {'class': 'lister-item-year'}).get_text().replace("(", "").replace(")","")
+print(year)
+
+duration = list_items[0].find('span',{'class': 'runtime'}).get_text()
+print(duration)
+
+genre = list_items[0].find('span', {'class': 'genre'}).get_text().strip()
+
+#list_items[0].find('div', {'class': 'ratings-bar'}).get_text().strip()
+rating = list_items[0].find('strong').get_text()
+print(rating)
+
+imdb_data = []
+for item in list_items:
+    temporary_data = {
+        'Title': item.find('h3').find('a').get_text(),
+        'Year': item.find('h3').find('span', {'class': 'lister-item-year'}).get_text().replace("(", "").replace(")",""),
+        'Time': item.find('span',{'class': 'runtime'}).get_text(),
+        'Genre': item.find('span', {'class': 'genre'}).get_text().strip(),
+        'Rating': item.find('strong').get_text(),
+    }
+    
+    imdb_data.append(temporary_data)
+    
+
+
+imdb_data = pd.DataFrame(imdb_data)
+imdb_data
+imdb_data.to_excel('imdb_data.xlsx',index=False)
